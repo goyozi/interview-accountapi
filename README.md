@@ -1,59 +1,30 @@
-# Form3 Take Home Exercise
+**Author**: Grzegorz Ziemoński
 
-Engineers at Form3 build highly available distributed systems in a microservices environment. Our take home test is designed to evaluate real world activities that are involved with this role. We recognise that this may not be as mentally challenging and may take longer to implement than some algorithmic tests that are often seen in interview exercises. Our approach however helps ensure that you will be working with a team of engineers with the necessary practical skills for the role (as well as a diverse range of technical wizardry). 
+**Go Experience**: Very limited\*
 
-## Instructions
-The goal of this exercise is to write a client library in Go to access our fake account API, which is provided as a Docker
-container in the file `docker-compose.yaml` of this repository. Please refer to the
-[Form3 documentation](http://api-docs.form3.tech/api.html#organisation-accounts) for information on how to interact with the API. Please note that the fake account API does not require any authorisation or authentication.
+\* I was on a team "maintaining" a Go microservice, which meant very occasional changes of a few lines. I also started a failed pet project in Go a few years ago. Neither helped a lot with solving this task.
 
-A mapping of account attributes can be found in [models.go](./models.go). Can be used as a starting point, usage of the file is not required.
+## Omitted Extra Features
 
-If you encounter any problems running the fake account API we would encourage you to do some debugging first,
-before reaching out for help.
+There's a lot of extra things that _could_ be implemented in a project like this, depending on the business and technical context. Below are ones that came on my mind in a few minutes of thinking about this.
 
-## Submission Guidance
+### Logging & Metrics
 
-### Shoulds
+Depending on the needs and conventions, in a real world scenario, there could be a need for logging and gathering some metrics about usage frequency, performance etc.
 
-The finished solution **should:**
-- Be written in Go.
-- Use the `docker-compose.yaml` of this repository.
-- Be a client library suitable for use in another software project.
-- Implement the `Create`, `Fetch`, and `Delete` operations on the `accounts` resource.
-- Be well tested to the level you would expect in a commercial environment. Note that tests are expected to run against the provided fake account API.
-- Be simple and concise.
-- Have tests that run from `docker-compose up` - our reviewers will run `docker-compose up` to assess if your tests pass.
+### Tracing
 
-### Should Nots
+If the system has support for distributed tracing, or we want to introduce it, we should implement the usage of **correlation IDs** and/or **trace IDs**. This increases system transparency and makes debugging easier.
 
-The finished solution **should not:**
-- Use a code generator to write the client library.
-- Use (copy or otherwise) code from any third party without attribution to complete the exercise, as this will result in the test being rejected.
-- Use a library for your client (e.g: go-resty). Anything from the standard library (such as `net/http`) is allowed. Libraries to support testing or types like UUID are also fine.
-- Implement client-side validation.
-- Implement an authentication scheme.
-- Implement support for the fields `data.attributes.private_identification`, `data.attributes.organisation_identification`
-  and `data.relationships`, as they are omitted in the provided fake account API implementation.
-- Have advanced features, however discussion of anything extra you'd expect a production client to contain would be useful in the documentation.
-- Be a command line client or other type of program - the requirement is to write a client library.
-- Implement the `List` operation.
-> We give no credit for including any of the above in a submitted test, so please only focus on the "Shoulds" above.
+### Resilience Mechanisms
 
-## How to submit your exercise
+As remote calls have a tendency for failing for various reasons, one should also consider introducing some resilience when making them e.g.
 
-- Include your name in the README. If you are new to Go, please also mention this in the README so that we can consider this when reviewing your exercise
-- Create a private [GitHub](https://help.github.com/en/articles/create-a-repo) repository, by copying all files you deem necessary for your submission
-- [Invite](https://help.github.com/en/articles/inviting-collaborators-to-a-personal-repository) @form3tech-interviewer-1 to your private repo
-- Let us know you've completed the exercise using the link provided at the bottom of the email from our recruitment team
+- **Circuit Breakers**, if we see a risk associated with extra requests in case of failures
+- **Retries**, in case a failure is just a flake
+- **Back-offs**, usually **exponential**, to avoid making all the retries within a split second
+- **Timeouts**, in case the service takes too long to respond
 
-## License
+### Caching
 
-Copyright 2019-2021 Form3 Financial Cloud
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+If there was a need for faster response times and the business context allows it (doubt it's a case for account information), one could consider caching the responses.
