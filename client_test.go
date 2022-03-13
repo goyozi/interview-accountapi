@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var client = NewAccountsClient("http://localhost:8080")
+var client = NewAccountsClient("http://accountapi:8080")
 
 var country string = "GB"
 var classification = "Personal"
@@ -84,6 +84,6 @@ func TestDeleteNonExistentAccount(t *testing.T) {
 	err := client.Delete(&account)
 
 	if assert.NotNil(t, err) {
-		assert.Equal(t, "record 0568dec3-e8af-433b-906e-d9e616b30843 does not exist", err.Error())
+		assert.Equal(t, "record "+account.ID+" does not exist", err.Error())
 	}
 }
