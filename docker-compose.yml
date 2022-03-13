@@ -1,6 +1,11 @@
 version: '3'
 
 services:
+  tests:
+    build: .
+    depends_on:
+      - accountapi
+
   accountapi:
     image: form3tech/interview-accountapi:v1.0.0-50-ga251d4fc
     restart: on-failure
